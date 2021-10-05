@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>Teach in</h2>
+<mat-dialog-content class="mat-typography">
+  <div *ngIf="stage == 0">
+    <h3><b>Please enter the funtion name </b></h3>
+    <br>
+    <form class="functionNameInput">
+      <mat-form-field class="function-name-width" appearance="fill">
+        <mat-label>Function name</mat-label>
+        <input matInput required type="text" name="func-name" [(ngModel)]="inputString" maxlength="256"
+          placeholder="ON / OFF">
+        <mat-hint align="start"><strong>Give a meaningful name</strong> </mat-hint>
+        <mat-hint align="end">{{inputString.length}} / 256</mat-hint>
+      </mat-form-field>
+    </form>
+  </div>
+
+  <div *ngIf="stage == 1">
+    <h3><b>EnOcean Signal</b></h3>
+    <!-- Mat table show incoming EnOcean Signals user can then choose which one -->
+    <app-enocean-signal-table></app-enocean-signal-table>
+  </div>
+
+  <div *ngIf="stage == 2">
+    Third
+  </div>
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <!-- <button mat-button [mat-dialog-close]="false" cdkFocusInitial (click)="openEnOceanDialog(message.value)">Next</button> -->
+  <button mat-button cdkFocusInitial (click)="next()">Next</button>
+
+</mat-dialog-actions>
