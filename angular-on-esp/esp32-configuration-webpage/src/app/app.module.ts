@@ -10,16 +10,17 @@ import { AboutusComponent } from './aboutus/aboutus.component';
 import { OceanredComponent } from './oceanred/oceanred.component';
 import { TeachInDialogComponent } from './teach-in-dialog/teach-in-dialog.component';
 
-//
 import { MatDialogModule } from '@angular/material/dialog'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
-import { EnoceanSignalTableComponent } from './enocean-signal-table/enocean-signal-table.component';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
+import { EnoceanTableComponent } from './enocean-table/enocean-table.component';
+import { MatTableModule } from '@angular/material/table'
+import { DataServiceService } from './services/data-service.service';
+
+//
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -31,7 +32,7 @@ import { MatSortModule } from '@angular/material/sort';
     AboutusComponent,
     OceanredComponent,
     TeachInDialogComponent,
-    EnoceanSignalTableComponent,
+    EnoceanTableComponent,
   ],
   imports: [
     BrowserModule,
@@ -42,10 +43,9 @@ import { MatSortModule } from '@angular/material/sort';
     MatInputModule,
     FormsModule,
     MatTableModule,
-    MatPaginatorModule,
-    MatSortModule
+    HttpClientModule,     // For Testing
   ],
-  providers: [],
+  providers: [DataServiceService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

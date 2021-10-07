@@ -17,7 +17,14 @@
   <div *ngIf="stage == 1">
     <h3><b>EnOcean Signal</b></h3>
     <!-- Mat table show incoming EnOcean Signals user can then choose which one -->
-    <app-enocean-signal-table></app-enocean-signal-table>
+    <p>TABLE</p>
+    <!-- <button (click)="printSignals()">TEST</button> -->
+    <!-- {{packetType}}
+    {{senderId}} -->
+    <app-enocean-table>
+      {{packetType}}
+      {{senderId}}
+    </app-enocean-table>
   </div>
 
   <div *ngIf="stage == 2">
