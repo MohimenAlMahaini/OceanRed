@@ -1,8 +1,6 @@
 # This Script build The Anngular Application and moves it to ESP32 /data/www/ folder
 # Author: Mohimen Al Mahaini
 
-## TODO Empty destination dir
-
 #!/bin/bash
 clear
 
