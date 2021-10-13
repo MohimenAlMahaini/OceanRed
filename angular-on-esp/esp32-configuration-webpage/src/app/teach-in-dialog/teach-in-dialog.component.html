@@ -15,20 +15,17 @@
   </div>
 
   <div *ngIf="stage == 1">
-    <h3><b>EnOcean Signal</b></h3>
+    <h3><b>EnOcean Telegrams</b></h3>
     <!-- Mat table show incoming EnOcean Signals user can then choose which one -->
-    <p>TABLE</p>
-    <!-- <button (click)="printSignals()">TEST</button> -->
-    <!-- {{packetType}}
-    {{senderId}} -->
-    <app-enocean-table>
-      {{packetType}}
-      {{senderId}}
-    </app-enocean-table>
+    <!-- <button *ngFor="let telegram of enOceanTelegrams" mat-button>{{telegram}}</button> -->
+    <li *ngFor="let telegram of enOceanTelegrams">
+      {{telegram.type}} , {{telegram.senderID}}, {{telegram.payload}}
+    </li>
   </div>
 
   <div *ngIf="stage == 2">
-    Third
+    <h3><b>Infrared Signals</b></h3>
+    <button *ngFor="let signal of irSignals" mat-button>{{signal}}</button>
   </div>
 
 </mat-dialog-content>

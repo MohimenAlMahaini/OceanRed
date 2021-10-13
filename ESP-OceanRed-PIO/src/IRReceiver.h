@@ -12,8 +12,10 @@
 #include <IRtext.h>
 
 uint16_t RECV_PIN = 13;
+uint indexPtr = 0;
 
 String recivedHexStringBuffer[20]; // Array to hold recived signals as a Hex String
+uint16_t sizeOfArray = sizeof(recivedHexStringBuffer) / sizeof(recivedHexStringBuffer[0]);
 
 const uint16_t kCaptureBufferSize = 1024;
 
@@ -30,6 +32,8 @@ IRrecv irrecv(RECV_PIN, kCaptureBufferSize, kTimeout, true);
 
 decode_results results;
 
+boolean startIRTeachin = false;
+
 void initIRReciver() //TODO: change function name
 {
     irrecv.setUnknownThreshold(kMinUnknownSize);
@@ -39,28 +43,33 @@ void initIRReciver() //TODO: change function name
 
 void addRecivedIRtoTransportArray(String rawData)
 {
-    //TODO: Parse incoming rawData before inserting it in Array
+    int ind1 = rawData.indexOf('{');
+    int ind2 = rawData.indexOf('}');
+    rawData = rawData.substring(ind1 + 1, ind2);
+    Serial.println("******************");
+    Serial.println(rawData);
+    Serial.println("******************");
     // if array is not full
-    uint16_t sizeOfArray = sizeof(recivedHexStringBuffer) / sizeof(recivedHexStringBuffer[0]);
-    if (recivedHexStringBuffer[sizeOfArray - 1] == 0) // 0 or ""
+
+    if (recivedHexStringBuffer[sizeOfArray - 1] == 0) // 0 or "" at least 1 empty place in array
     {
         for (int i = 0; i < sizeOfArray; i++)
         {
             if (recivedHexStringBuffer[i] == 0)
             {
-                recivedHexStringBuffer[i] = rawData;
+                recivedHexStringBuffer[i] = rawData; // This fills the array up with the same signal
+                break;
             }
         }
     }
-
-    // If Array is full -> push the array 1 place overwritting the oldest entry
-    if (recivedHexStringBuffer[sizeOfArray - 1] != 0)
+    else if (recivedHexStringBuffer[sizeOfArray - 1] != 0) // once the array is full.
     {
-        for (int ii = 0; ii < sizeOfArray - 1; ii++)
+        recivedHexStringBuffer[indexPtr] = rawData;
+        indexPtr++;
+        if (indexPtr == sizeOfArray) // reset indexPtr
         {
-            recivedHexStringBuffer[ii] = recivedHexStringBuffer[ii + 1];
+            indexPtr = 0;
         }
-        recivedHexStringBuffer[sizeOfArray - 1] == rawData;
     }
 }
 
@@ -70,26 +79,27 @@ void dump()
     {
         // Display a crude timestamp.
         uint32_t now = millis();
-        Serial.printf(D_STR_TIMESTAMP " : %06u.%03u\n", now / 1000, now % 1000);
+        // Serial.printf(D_STR_TIMESTAMP " : %06u.%03u\n", now / 1000, now % 1000);
         // Check if we got an IR message that was to big for our capture buffer.
         if (results.overflow)
             Serial.printf(D_WARN_BUFFERFULL "\n", kCaptureBufferSize);
         // Display the library version the message was captured with.
-        Serial.println(D_STR_LIBRARY "   : v" _IRREMOTEESP8266_VERSION_ "\n");
+        // Serial.println(D_STR_LIBRARY "   : v" _IRREMOTEESP8266_VERSION_ "\n");
         // Display the tolerance percentage if it has been change from the default.
         if (kTolerancePercentage != kTolerance)
             Serial.printf(D_STR_TOLERANCE " : %d%%\n", kTolerancePercentage);
         // Display the basic output of what we found.
-        Serial.print(resultToHumanReadableBasic(&results));
+        // Serial.print(resultToHumanReadableBasic(&results));
         // Display any extra A/C info if we have it.
         String description = IRAcUtils::resultAcToString(&results);
         if (description.length())
             Serial.println(D_STR_MESGDESC ": " + description);
         yield(); // Feed the WDT as the text output can take a while to print.
-        Serial.println(resultToSourceCode(&results));
-        Serial.println(); // Blank line between entries
-        yield();          // Feed the WDT (again)
-        addRecivedIRtoTransportArray(resultToSourceCode(&results));
+        // Serial.println(resultToSourceCode(&results));
+        // Serial.println(); // Blank line between entries
+        yield(); // Feed the WDT (again)
+        if (startIRTeachin)
+            addRecivedIRtoTransportArray(resultToSourceCode(&results));
     }
 }
 

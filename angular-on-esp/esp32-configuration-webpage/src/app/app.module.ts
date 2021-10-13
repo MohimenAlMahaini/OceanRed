@@ -15,9 +15,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { EnoceanTableComponent } from './enocean-table/enocean-table.component';
+
 import { MatTableModule } from '@angular/material/table'
-import { DataServiceService } from './services/data-service.service';
 
 //
 import { HttpClient, HttpClientModule } from '@angular/common/http';
@@ -32,7 +31,6 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
     AboutusComponent,
     OceanredComponent,
     TeachInDialogComponent,
-    EnoceanTableComponent,
   ],
   imports: [
     BrowserModule,
@@ -45,7 +43,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
     MatTableModule,
     HttpClientModule,     // For Testing
   ],
-  providers: [DataServiceService],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

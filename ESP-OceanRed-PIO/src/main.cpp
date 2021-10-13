@@ -1,26 +1,26 @@
 #include <Arduino.h>
 #include <connectToWiFi.h>
 #include <webserver.h>
-#include <EnOcean.h>
 #include <TransmitIR.h>
-#include <IRReceiver.h>
 #include <EnOceanIR.h>
+#include <FilesAndData.h>
 
 #define BAUD_RATE 115200
 
 #define button 34
 #define LED 5
-boolean flag = false;
+// boolean flag = false;
 
 void setup()
 {
   Serial.begin(BAUD_RATE);
   Serial.println("Starting ....");
-  // if (!SPIFFS.begin())
-  // {
-  //   Serial.println("An Error has occurred while mounting SPIFFS"); //***
-  //   return;
-  // }
+  if (!SPIFFS.begin())
+  {
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    delay(1000);
+    return;
+  }
   connectWiFi();
 
   setupUART();
@@ -51,12 +51,14 @@ void setup()
   // vTaskSuspend(&xIRHandle); // IRTask Is suspended
 
   startWebServer();
-  listFiles();
+  listAllFiles();
   // vTaskResume(&xIRHandle);
 
   pinMode(button, INPUT);
   pinMode(LED, OUTPUT);
   initTx();
+  // loadConfig();
+  readEntries();
 }
 
 void loop()

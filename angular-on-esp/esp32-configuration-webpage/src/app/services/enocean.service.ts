@@ -1,35 +1,40 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
+import { EnoceanI } from '../enocean-i';
+
 
 @Injectable({
   providedIn: 'root'
 })
-export class IRServiceService {
+export class EnoceanService {
+
   private requestInterval = 1500;
   private listening = false;
 
-  private irSignals: string[] = [];
+  private enoceanTelegramArray: EnoceanI[] = [];
+
 
   private receivableSubject = new Subject<string>();
-  public receivableSignal = this.receivableSubject.asObservable();
+  public receivableTelegram = this.receivableSubject.asObservable();
 
   constructor(private http: HttpClient) { }
 
-  getIrSignals(): string[] {
-    let result: string[] = [];
-    this.irSignals.forEach((value) => result.push(value));
+
+  getEnoceanTelegramArray(): EnoceanI[] {
+    let result: EnoceanI[] = [];
+    this.enoceanTelegramArray.forEach((value) => result.push(value));
     return result;
   }
 
-  resetIrSignals(): void {
-    this.irSignals = [];
+  resetEnoceanTelegramArray(): void {
+    this.enoceanTelegramArray = [];
   }
 
   startListening(): void {
     if (!this.listening) {
-      this.http.get('start-ir-teachin').subscribe((data) => {
-        console.log("Finished");
+      this.http.get('start-enocean-teachin').subscribe((data) => {
+        console.log("START LISTENING TO ENOCEAN...");
         console.log(data);
       }, (error) => console.log(error), () => console.log("completed!"));; // Inform ESP32 to start.
       this.listening = true;
@@ -45,7 +50,6 @@ export class IRServiceService {
     this.listening = false;
   }
 
-  /*StartRequestLoop is WIP */
   private startRequestLoop(): void {
     if (this.listening) {
       setTimeout(() => {
@@ -54,20 +58,26 @@ export class IRServiceService {
           return;
 
         console.log("Request data...")
-        this.http.get('get-ir').subscribe((data) => {
-
+        this.http.get('get-eo').subscribe((data) => {
+          console.log(data);
           if (data) {
             let container = data as any;
-            if (container.signals) {
-              for (let i = 0; i < container.signals.length; i++) {
-                let signal = container.signals[i];
-                if (signal) {
-                  this.irSignals.push(signal);
-                  this.receivableSubject.next(signal);
+            if (container.telegrams) {
+              for (let i = 0; i < container.telegrams.length; i++) {
+                let telegram = container.telegrams[i];
+                if (telegram) {
+                  this.enoceanTelegramArray.push(telegram);
+                  this.receivableSubject.next(telegram);
                 }
               }
             }
           }
+
+          // this.http.get<EnoceanI>('get-eo').subscribe((data: EnoceanI) =>  {
+          //   console.log(data);
+          //   if (data) {
+
+          //   }
 
           //Notify observers
 

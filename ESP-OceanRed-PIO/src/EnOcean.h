@@ -13,10 +13,12 @@
 #define TCM_BAUD_RATE 57600
 #define ESP_UART1_TX 4
 #define ESP_UART1_RX 35
+#define MAX_PAYLOAD 200
 
-boolean recived = false;
+// boolean recived = false;
 
-int rxBuffer[256];
+// Global Variables
+int rxBuffer[256]; 
 struct EnOcean
 {
     byte syncByte = 0x55;
@@ -33,13 +35,18 @@ struct EnOceanPacket
 {
     byte packetType;
     byte senderID[4];
-    byte payload[200];
+    byte payload[MAX_PAYLOAD];
     byte status;
 } recivedTelegram;
 
+boolean startEnOceanTeachIn = false;
+String enOceanArray[20];
+uint index_ptr_enocean = 0;
+uint sizeOfEnoceanArray = sizeof(enOceanArray) / sizeof(enOceanArray[0]);
+
 void setupUART()
 {
-    // Serial2.begin(baud-rate, protocol, RX pin, TX pin);
+    // Serial1.begin(baud-rate, protocol, RX pin, TX pin);
     Serial1.begin(TCM_BAUD_RATE, SERIAL_8N1, ESP_UART1_RX, ESP_UART1_TX);
     Serial.println("Serial Txd is on pin: " + String(ESP_UART1_TX));
     Serial.println("Serial Rxd is on pin: " + String(ESP_UART1_RX));
@@ -108,6 +115,74 @@ void readAvailableSerial(int enOceanbyte)
     }
 }
 
+/* This function Validates the recived EnOcean Signal
+*  Validate if the telegram came from EnOCean Rocker or FTKE.
+*  return boolean
+*/
+boolean isTelegramValid()
+{
+    if (telegram.packetType != 0x01) // RADIO_ERP1
+    {
+        return false;
+    }
+
+    if (telegram.data[0] != 0xF6 /*|| telegram.data[0] != 0xD5*/) // Telegram Type RORG see EEP page 14 (1BS == D5 implement latter)
+    {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * This Function stores the recived EnOcean Telegrams in enoceanArray.
+ */
+void saveToArray()
+{
+    if (index_ptr_enocean == sizeOfEnoceanArray)
+    {
+        index_ptr_enocean = 0;
+    }
+
+    String arryString = "";
+    String hexString;
+
+    if (telegram.data[1] == 0xf0 || telegram.data[1] == 0xe0) // ftke
+    {
+        arryString += "FTKE";
+    }
+    else if (telegram.data[1] == 0x00 || telegram.data[1] == 0x10 || telegram.data[1] == 0x20 || telegram.data[1] == 0x30 || telegram.data[1] == 0x40 || telegram.data[1] == 0x50 || telegram.data[1] == 0x60 || telegram.data[1] == 0x70)
+    {
+        arryString += "EnOcean Rocker";
+    }
+
+    arryString += "#";
+
+    // add SenderID to oceanString
+    for (int i = 0; i < 4; i++)
+    {
+        hexString += String(recivedTelegram.senderID[i], HEX);
+        if (recivedTelegram.senderID[i] == 0)
+        {
+            hexString += "0";
+        }
+    }
+    Serial.print("HEXSTRING = ");
+    Serial.println(hexString);
+    arryString += "0x";
+    arryString += hexString;
+    // arrayString = <type>#0x<senderId>
+    arryString += "*"; //GET PAYLOAD FOR 1BS
+    hexString = String(telegram.data[1], HEX);
+    if (telegram.data[1] == 0)
+    {
+        hexString += "0";
+    }
+    arryString += "0x";
+    arryString += hexString;
+    enOceanArray[index_ptr_enocean] = arryString;
+    index_ptr_enocean++;
+}
+
 void getEnOceanSenderInfo()
 {
     recivedTelegram.packetType = telegram.packetType; //get PacketType
@@ -117,29 +192,36 @@ void getEnOceanSenderInfo()
     {
         temp[i] = telegram.data[telegram.dataLength - 2 - i]; // Recive SenderID last in first out
     }
-    // reverse receivedTelegram
+    // reverse receivedTelegram (senderId Correct order)
     for (int y = 0; y < 4; y++)
     {
         recivedTelegram.senderID[y] = temp[3 - y];
     }
-    // Get Payload
+    // Get Payload (User Data)
     for (int ii = 0; ii < telegram.dataLength - 5; ii++)
     {
         recivedTelegram.payload[ii] = telegram.data[ii + 1];
     }
-    Serial.println("Data has been parsed");
-    for (int yy = 0; yy < 4; yy++)
-    {
-        Serial.print(" 0x");
-        Serial.print(recivedTelegram.senderID[yy], HEX);
-    }
-    recivedTelegram.status = telegram.data[telegram.dataLength - 1];
-    Serial.println();
-}
+    // Code for debuging
+    // Serial.println("Data has been parsed");
+    // for (int yy = 0; yy < 4; yy++) // for debug
+    // {
+    //     Serial.print(" 0x");
+    //     Serial.print(recivedTelegram.senderID[yy], HEX);
+    // }
+    // Serial.println("");
 
-/* If the user is teaching an EnOcean Signal send recived EnOcean Signal to Angular Web Application otherwise if signal is learned execute IR command*/
-void sendRecivedToAngular()
-{
+    recivedTelegram.status = telegram.data[telegram.dataLength - 1];
+
+    // Check if listening & search for the signal
+    if (isTelegramValid())
+    {
+        compareRxWithRAMEntries(recivedTelegram.senderID, telegram.data[1]);
+        if (startEnOceanTeachIn)
+        {
+            saveToArray();
+        }
+    }
 }
 
 /*This function Reads Serial1 (TCM) and Recive EnOcean Telegrams*/
@@ -148,8 +230,6 @@ void rxEnOcean()
     readAvailableSerial(6);
     if (rxBuffer[0] == telegram.syncByte)
     {
-        // Start Timestamp
-
         // Get Header
         telegram.dataLength = (rxBuffer[1] * 256) + rxBuffer[2];
         telegram.optionalLength = rxBuffer[3];
@@ -163,7 +243,7 @@ void rxEnOcean()
         }
         else
         {
-            Serial.println("Recived CRC8h == Calculated CRC8h  "); // All good, proceed to recive data.
+            // Serial.println("Recived CRC8h == Calculated CRC8h  "); // All good, proceed to recive data.
             // Read Data
             readAvailableSerial(telegram.dataLength);
             // Get Data
@@ -204,8 +284,7 @@ void rxEnOcean()
             }
             else
             {
-                Serial.println("Recived CRC8D == Calculated CRC8D"); // All good, proceed.
-                // recived = true;                                      // Remove this flag and make it a function call
+                // Serial.println("Recived CRC8D == Calculated CRC8D"); // All good, proceed.
                 getEnOceanSenderInfo();
             }
             // displayRecivedTelegram(headerData);
@@ -219,8 +298,15 @@ void vEnOceanTask(void *pvParameters)
     {
         rxEnOcean();
         // taskYIELD();
-        sendIROnCommand(recivedTelegram.senderID, recivedTelegram.status);
+        // sendIROnCommand(recivedTelegram.senderID, recivedTelegram.status);
     }
 }
 
 #endif
+/**
+ *  PROG | DATA | Sender ID | Status
+ *      f6 | e0 | fe fa 27 c5 | 20
+ *      f6  e0  fe fa 27 c5 20
+ *      f6 20 fe ff fe 63 30
+ *      f6 00 fe ff fe 63 20
+*/

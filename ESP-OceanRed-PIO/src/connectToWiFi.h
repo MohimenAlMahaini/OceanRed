@@ -75,7 +75,7 @@ void connectWiFi()
         Serial.println("failed to connect and hit timeout");
     }
 
-    //if you get here you have connected to the WiFi
+    //if you reach here you have connected to the WiFi
     Serial.println("Connected to the WiFi Network");
     Serial.println("MAC: " + WiFi.macAddress());
     Serial.println("IP: " + WiFi.localIP().toString());
