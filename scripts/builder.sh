@@ -1,4 +1,4 @@
-# This Script build The Anngular Application and moves it to ESP32 /data/www/ folder
+# This Script build The Anngular Application and moves it to ESP32 /www/ folder
 # Author: Mohimen Al Mahaini
 
 #!/bin/bash
@@ -26,16 +26,17 @@ buildAngular()
 prepareFiles()
 {
     cd dist/esp32-configuration-webpage/ 
-    
-    cp * ../../../../ESP-OceanRed-PIO/data/www 
+    rm -r ../../../../ESP-OceanRed-PIO/www/*     # Delete everything in the distination dir.
 
-    cd ../../../../ESP-OceanRed-PIO/data/www 
+    cp * ../../../../ESP-OceanRed-PIO/www          # Copy from source to distenation.
+
+    cd ../../../../ESP-OceanRed-PIO/www 
     for file in *
     do
         echo "$file"
         if [[ $file == main.*  ||  $file == runtime.*  ||  $file == styles.*  ||  $file == polyfills.* ]]
         then
-            fileName=$(echo "$file" | cut -d '.' -f1,3-) # on Ubuntu cut -d '.' -f1,3- On Mac cut -d '.' -f1 -f3 
+            fileName=$(echo "$file" | cut -d '.' -f1,3-)
             echo $fileName
             mv $file $fileName
             gzip $fileName

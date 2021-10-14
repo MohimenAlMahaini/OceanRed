@@ -1,1 +1,24 @@
-<p>Dashboard</p>
+<p>Click the card to send IR signal.</p>
+<div class="content">
+  <mat-card mat-icon-button mat-ripple (click)="send(entry)" *ngFor="let entry of entries" class="entry">
+    <mat-card-header>{{entry.functionName}}</mat-card-header>
+    <mat-card-content>
+    </mat-card-content>
+    <mat-card-footer>Something more</mat-card-footer>
+  </mat-card>
+</div>
+
+
+<!-- <mat-accordion>
+  <mat-expansion-panel *ngFor="let entry of entries">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        {{entry.functionName}}
+      </mat-panel-title>
+      <mat-panel-description>
+        <button mat-icon-button (click)="send(entry);$event.stopPropagation()">TT</button>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <p>Here is the place for EnOcean signals</p>
+  </mat-expansion-panel>
+</mat-accordion> -->

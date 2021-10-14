@@ -29,7 +29,7 @@ export class IRServiceService {
   startListening(): void {
     if (!this.listening) {
       this.http.get('start-ir-teachin').subscribe((data) => {
-        console.log("Finished");
+        console.log("Start IR Teachin");
         console.log(data);
       }, (error) => console.log(error), () => console.log("completed!"));; // Inform ESP32 to start.
       this.listening = true;
@@ -37,15 +37,7 @@ export class IRServiceService {
     }
   }
 
-  stopListening(): void {
-    this.http.get("stop-enocean-teachin").subscribe((data) => {
-      console.log("Finished");
-      console.log(data);
-    }, (error) => console.log(error), () => console.log("completed!")); // Inform ESP32 to stop.
-    this.listening = false;
-  }
-
-  /*StartRequestLoop is WIP */
+  /*StartRequestLoop */
   private startRequestLoop(): void {
     if (this.listening) {
       setTimeout(() => {
@@ -53,7 +45,7 @@ export class IRServiceService {
         if (!this.listening)
           return;
 
-        console.log("Request data...")
+        console.log("Request IR data...")
         this.http.get('get-ir').subscribe((data) => {
 
           if (data) {
@@ -83,5 +75,15 @@ export class IRServiceService {
       }, this.requestInterval);
     }
   }
+
+  stopListening(): void {
+    this.http.get("stop-ir-teachin").subscribe((data) => {
+      console.log("Stoped IR Teachin");
+      console.log(data);
+    }, (error) => console.log(error), () => console.log("completed!")); // Inform ESP32 to stop.
+    this.listening = false;
+  }
+
+
 
 }

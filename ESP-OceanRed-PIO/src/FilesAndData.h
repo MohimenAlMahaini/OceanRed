@@ -1,7 +1,7 @@
 #ifndef files_and_data_h
 #define files_and_data_h
 /**
- * This class handels files & files Data, it also implement some of the backend functions.
+ * This class handels files & files Data, it also implements functions of the API.
  * Author: Mohimen Al Mahaini
  * */
 
@@ -110,6 +110,49 @@ void saveEntriesToRAM(int entryId, String irRawData, String enoceanSignal, Strin
     entry[entryId - 1].functionName = functionName;
 }
 
+/* Serialize Entries */
+String serializedEntries()
+{
+    /*ArduinoJson Memory leaks
+    * Replacing and removing values produce a memory leak inside the
+    * JsonDocument.
+    * In practice, this problem only happens in programs that use a JsonDocument
+    * to store the application’s state, which is not the purpose of ArduinoJson.
+    * the sole purpose of ArduinoJson is to serialize and deserialize
+    * JSON documents. Thats why I'm not using ArduinoJson for Serialization.
+    */
+
+    Serial.print("Serializing Entries ...");
+
+    boolean isFirst = true;
+    String data = "[";
+    for (int i = 0; i < MAX_ALLOWED_ENTRIES; i++)
+    {
+        // Check if entry is NOT empty no need to write an empty entry into SPIFFS
+        if (entry[i].entryId > 0)
+        {
+            if (!isFirst)
+            {
+                data += ",";
+            }
+            data += "{";
+            data += "\"entryId\":";
+            data += String(entry[i].entryId);
+            data += ",\"IR\": \"";
+            data += entry[i].irRawData;
+            data += "\",\"enoceanID\": \"";
+            data += entry[i].enoceanSignal;
+            data += "\", \"functionName\":\"";
+            data += entry[i].functionName;
+            data += "\"}";
+            isFirst = false;
+        }
+    }
+    data += "]";
+    Serial.println(data);
+    return data;
+}
+
 /*This function clears Entries from RAM (sets them to 0, entry is a global variable and it can not be freed)*/
 void clearEntriesFromRAM()
 {
@@ -154,58 +197,22 @@ void readEntries()
     // Walk the JsonArray efficiently  See 3.7.4 deserialization_tutorial6
     for (JsonObject obj : arr)
     {
-        const int entryid = obj["entryid"];
+        const int entryid = obj["entryId"];
         const char *IR = obj["IR"];
         const char *enoceanID = obj["enoceanID"];
         const char *functionName = obj["functionName"];
 
         saveEntriesToRAM(entryid, IR, enoceanID, functionName);
     }
+    // After Entries Saved to RAM No need to Keep doc (DECONSTRUCT doc Obj from heap)
+    doc.clear();
 }
 
 /*This function save the entries from RAM to SPIFFS, When the user saves a new entry it should be saved so that we can serve it after a reboot*/
 void saveToSPIFFS()
 {
-    /*ArduinoJson Memory leaks
-    * Replacing and removing values produce a memory leak inside the
-    * JsonDocument.
-    * In practice, this problem only happens in programs that use a JsonDocument
-    * to store the application’s state, which is not the purpose of ArduinoJson.
-    * the sole purpose of ArduinoJson is to serialize and deserialize
-    * JSON documents. Thats why I'm not using ArduinoJson for Serialization.
-    */
-
-    Serial.println("SAVING TO SPIFFS . . . ");
-
-    boolean isFirst = true;
-    String data = "[";
-    for (int i = 0; i < MAX_ALLOWED_ENTRIES; i++)
-    {
-        // Check if entry is NOT empty
-        if (entry[i].entryId != NULL)
-        {
-            if (!isFirst)
-            {
-                data += ",";
-            }
-            data += "{";
-            data += "\"entryid\":";
-            data += String(entry[i].entryId);
-            data += ",\"IR\": \"";
-            data += entry[i].irRawData;
-            data += "\",\"enoceanID\": \"";
-            data += entry[i].enoceanSignal;
-            data += "\", \"functionName\":\"";
-            data += entry[i].functionName;
-            data += "\"}";
-            isFirst = false;
-        }
-    }
-
-    data += "]";
-    Serial.print("DATA TO SAVE = ");
-    Serial.println(data);
-    writeFile(SPIFFS, "/entry.json", data.c_str());
+    Serial.println(serializedEntries());
+    writeFile(SPIFFS, "/entry.json", serializedEntries().c_str());
 }
 
 /*This function return an availableID EntryID */
@@ -222,7 +229,91 @@ int getAValidEntryID()
     return -1;
 }
 
+/*This function adds entry (without EnOcean Signal) to RAM.
+ * parameters: irRawData , functionName
+ * returns: EntryID to Ng. to be used when usr adds Enocean components.
+ */
+int addEntry(String functionName, String irRawData)
+{
+    Serial.println("ADDING NEW ENTRY WITHOUT ENOCEAN");
+
+    int availableID = getAValidEntryID();
+
+    if (availableID != -1) // check if there is still availableIDs
+    {
+        entry[availableID - 1].entryId = availableID;
+        entry[availableID - 1].irRawData = irRawData;
+        entry[availableID - 1].functionName = functionName;
+        return availableID;
+    }
+}
+
+/*This function adds an EnOcean Signal to the entry, and it can be used to Remove EnOcean Entry*/
+void addEnocean(int id, String enocean)
+{
+    if (id <= 0)
+    {
+        return;
+    }
+    // this is Deprecated → see removeEnocean
+    if (enocean.isEmpty())
+    {
+        entry[id - 1].enoceanSignal = "";
+        return;
+    }
+    else
+    {
+        entry[id - 1].enoceanSignal += enocean;
+        Serial.println("ADD ENOCEAN SIGNAL TO ENTRY ");
+        Serial.println(entry[id - 1].enoceanSignal);
+    }
+}
+
+/*This function removes an Enocean signal*/
+void removeEnocean(int id, String signalToRemove)
+{
+    Serial.println("Signal to Remove = " + signalToRemove);
+    String tmp = entry[id - 1].enoceanSignal; // the whole signal
+    Serial.println("Original Signal = " + tmp);
+    // tmp.find(signalToRemove);
+
+    // tmp.erase(tmp.indexOf(signalToRemove), );
+    tmp.remove(tmp.indexOf(signalToRemove), 13);
+    entry[id - 1].enoceanSignal = tmp;
+    Serial.println("new Signal == " + entry[id - 1].enoceanSignal);
+}
+
+/*This function Removes entry from RAM*/
+void removeEntry(int id)
+{
+    // no need to check if entry exist because under normal usage Angular can only delete existing Entries.
+
+    // unvalid id
+    if (id <= 0)
+    {
+        return;
+    }
+    // find Entry to be deleted
+    // for (int i = 0; i < MAX_ALLOWED_ENTRIES; i++)
+    // {
+    // making sure that its so.
+    if (entry[id - 1].entryId == id)
+    {
+        entry[id - 1].entryId = NULL;
+        entry[id - 1].enoceanSignal = "";
+        entry[id - 1].functionName = "";
+        entry[id - 1].irRawData = "";
+        Serial.print("REMOVED ENTRY NR. " + String(id));
+        // no need to keep on looking double ID is forbidden
+        return;
+    }
+    // }
+}
+
+#endif /*files_h*/
+
 /*This function adds entry to RAM*/
+/* @ DEPRECATED → Use AddEntry(without Enocean) → addEnocean to this.entry
 void addEntry(String irRawData, String enoceanSignal, String functionName)
 {
     Serial.println("ADDING NEW ENTRY");
@@ -235,23 +326,10 @@ void addEntry(String irRawData, String enoceanSignal, String functionName)
         entry[availableID - 1].functionName = functionName;
     }
 }
-
-/*This function adds entry (without EnOcean Signal) to RAM*/
-void addEntry(String irRawData, String functionName)
-{
-    Serial.println("ADDING NEW ENTRY WITHOUT ENOCEAN");
-
-    int availableID = getAValidEntryID();
-
-    if (availableID != -1) // check if there is still availableIDs
-    {
-        entry[availableID - 1].entryId = availableID;
-        entry[availableID - 1].irRawData = irRawData;
-        entry[availableID - 1].functionName = functionName;
-    }
-}
+*/
 
 /*This function is used to edit an Entry*/
+/* EditEntry is DEPRECATED
 void editEntry(int id, String ir, String enoceanData, String functionName)
 {
     // check if id is valid, this check does not cost much computing, and id <= 0 should never return true.
@@ -284,27 +362,4 @@ void editEntry(int id, String ir, String functionName)
         entry[id - 1].functionName = functionName;
     }
 }
-
-/*This function Removes entry from RAM*/
-void removeEntry(int id)
-{
-    // no need to check if entry exist because under normal usage Angular can only delete existing Entries.
-
-    // unvalid id
-    if (id <= 0)
-    {
-        return;
-    }
-    // Make sure that it is so.
-    if (entry[id - 1].entryId == id)
-    {
-        entry[id - 1].entryId = NULL;
-        entry[id - 1].enoceanSignal = "";
-        entry[id - 1].functionName = "";
-        entry[id - 1].irRawData = "";
-    }
-
-    Serial.print("REMOVED ENTRY NR. " + String(id));
-}
-
-#endif /*files_h*/
+*/

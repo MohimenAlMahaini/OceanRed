@@ -15,11 +15,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatCardModule } from '@angular/material/card';
 
 import { MatTableModule } from '@angular/material/table'
+import { MatRippleModule } from '@angular/material/core';
 
 //
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { TeachinEnOceanComponent } from './teachin-en-ocean/teachin-en-ocean.component';
 
 
 @NgModule({
@@ -31,6 +35,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
     AboutusComponent,
     OceanredComponent,
     TeachInDialogComponent,
+    TeachinEnOceanComponent,
   ],
   imports: [
     BrowserModule,
@@ -42,6 +47,9 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
     FormsModule,
     MatTableModule,
     HttpClientModule,     // For Testing
+    MatExpansionModule,
+    MatCardModule,
+    MatRippleModule
   ],
   providers: [],
   bootstrap: [AppComponent]

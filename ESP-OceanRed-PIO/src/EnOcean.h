@@ -18,7 +18,7 @@
 // boolean recived = false;
 
 // Global Variables
-int rxBuffer[256]; 
+int rxBuffer[256];
 struct EnOcean
 {
     byte syncByte = 0x55;
@@ -39,10 +39,22 @@ struct EnOceanPacket
     byte status;
 } recivedTelegram;
 
-boolean startEnOceanTeachIn = false;
+boolean startEnOceanTeachIn;
 String enOceanArray[20];
 uint index_ptr_enocean = 0;
 uint sizeOfEnoceanArray = sizeof(enOceanArray) / sizeof(enOceanArray[0]);
+
+void setStartEnOceanTeachIn(boolean b)
+{
+    startEnOceanTeachIn = b;
+    // Serial.print("StartEnOCeanTeachIN == "); // FOR DEBUG
+    // Serial.println(startEnOceanTeachIn ? "true" : "false");
+}
+
+boolean getStartEnOceanTeachIn()
+{
+    return startEnOceanTeachIn;
+}
 
 void setupUART()
 {
@@ -138,7 +150,7 @@ boolean isTelegramValid()
  */
 void saveToArray()
 {
-    if (index_ptr_enocean == sizeOfEnoceanArray)
+    if (index_ptr_enocean == sizeOfEnoceanArray - 1)
     {
         index_ptr_enocean = 0;
     }
@@ -216,9 +228,10 @@ void getEnOceanSenderInfo()
     // Check if listening & search for the signal
     if (isTelegramValid())
     {
-        compareRxWithRAMEntries(recivedTelegram.senderID, telegram.data[1]);
-        if (startEnOceanTeachIn)
+        compareRxWithRAMEntries(recivedTelegram.senderID, telegram.data[1]); // TODO Compare if not in Teachin mode!
+        if (getStartEnOceanTeachIn())
         {
+            Serial.println("START ENOCEAN TEACHIN == TRUE;");
             saveToArray();
         }
     }

@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EnoceanTableComponent } from './enocean-table.component';
+import { TeachinEnOceanComponent } from './teachin-en-ocean.component';
 
-describe('EnoceanTableComponent', () => {
-  let component: EnoceanTableComponent;
-  let fixture: ComponentFixture<EnoceanTableComponent>;
+describe('TeachinEnOceanComponent', () => {
+  let component: TeachinEnOceanComponent;
+  let fixture: ComponentFixture<TeachinEnOceanComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EnoceanTableComponent ]
+      declarations: [ TeachinEnOceanComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(EnoceanTableComponent);
+    fixture = TestBed.createComponent(TeachinEnOceanComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -11,10 +11,9 @@ const routes: Routes = [
   { path: '', component: DashboardComponent },
   { path: 'teachIn', component: TeachinComponent },
   { path: 'teachin-dialog', component: TeachInDialogComponent },
-  { path: 'enoceansignal/:type/:senderid', component: TeachInDialogComponent }, // Does not work with service,
+  // { path: 'enoceansignal/:type/:senderid', component: TeachInDialogComponent }, // Does not work with service,
   { path: 'aboutus', component: AboutusComponent },
   { path: 'oceanred', component: OceanredComponent },
-
 ];
 
 @NgModule({

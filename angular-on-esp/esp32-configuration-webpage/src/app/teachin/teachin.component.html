@@ -1,9 +1,42 @@
 <h1>Teach in</h1>
 <p>To teach in a function you need to give it a name e.g "ON/OFF".<br>
-    Assgin it an EnOcean Sensor ID & an infra red signal.<br>
-    please notice that you can either Teachin a Real EnOcean Sensor e.g "FTKE or an EnOcean Rocker", or a virtual
-    EnOcean Sensor.
+  Assgin it an EnOcean Sensor ID & an infra red signal.<br>
 </p>
 
-<button mat-raised-button (click)="openDialog()">Start Teach in</button>
+<button mat-raised-button (click)="openDialog()">Start Teach in</button><br>
+<button mat-raised-button (click)="saveEntry()">SAVE Configuration</button>
+<hr>
+<h4>Edit config:</h4>
+
+<mat-accordion>
+  <mat-expansion-panel *ngFor="let entry of entries">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        {{entry.functionName}}
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <div class="exp-content">
+      <div class="actions">
+        <div class="spacer"></div>
+        <button (click)="addEnocean(entry.entryId)">Add a new Enocean device</button>
+        <button (click)="removeEntry(entry.entryId)">Delete Entry</button>
+      </div>
+      <div>
+        <mat-card>
+          <mat-card-header>ID: {{entry.entryId}}</mat-card-header>
+          <hr>
+          <mat-card-content>
+            <div class="eo-entry" *ngFor="let en of parseEnocean(entry.enoceanID)">
+              <div *ngIf="en" class=" eo-entry-id">EnOcean:{{en}}</div>
+              <hr>
+              <button *ngIf="en" button (click)="removeEnocean(entry.entryId, en)">-</button>
+            </div>
+          </mat-card-content>
+          <mat-card-footer></mat-card-footer>
+        </mat-card>
+      </div>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>
+
 <!-- <button mat-raised-button>Start Teach in</button> -->

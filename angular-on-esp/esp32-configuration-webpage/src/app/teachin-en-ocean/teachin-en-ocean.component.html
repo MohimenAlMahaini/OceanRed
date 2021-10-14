@@ -1,0 +1,14 @@
+<h2 mat-dialog-title>Pairing</h2>
+<mat-dialog-content class="mat-typography">
+  <h3><b>EnOcean Telegrams</b></h3>
+  <!-- Mat table show incoming EnOcean Signals user can then choose which one -->
+  <mat-card *ngFor="let telegram of enOceanTelegrams">
+    {{telegram.type}} , {{telegram.senderID}}, {{telegram.payload}}
+    <button mat-button cdkFocusInitial (click)="addEnocean(telegram.senderID,telegram.payload)">Select</button>
+  </mat-card>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <!-- <button mat-button [mat-dialog-close]="false" cdkFocusInitial (click)="openEnOceanDialog(message.value)">Next</button> -->
+</mat-dialog-actions>

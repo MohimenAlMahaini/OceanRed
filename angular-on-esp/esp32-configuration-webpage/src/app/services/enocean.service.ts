@@ -42,14 +42,6 @@ export class EnoceanService {
     }
   }
 
-  stopListening(): void {
-    this.http.get("stop-enocean-teachin").subscribe((data) => {
-      console.log("Finished");
-      console.log(data);
-    }, (error) => console.log(error), () => console.log("completed!")); // Inform ESP32 to stop.
-    this.listening = false;
-  }
-
   private startRequestLoop(): void {
     if (this.listening) {
       setTimeout(() => {
@@ -57,7 +49,7 @@ export class EnoceanService {
         if (!this.listening)
           return;
 
-        console.log("Request data...")
+        console.log("Request EnOcean data...")
         this.http.get('get-eo').subscribe((data) => {
           console.log(data);
           if (data) {
@@ -93,5 +85,15 @@ export class EnoceanService {
       }, this.requestInterval);
     }
   }
+
+  stopListening(): void {
+    this.http.get("stop-enocean-teachin").subscribe((data) => {
+      console.log("Stoped EnOcean Teachin");
+      console.log(data);
+    }, (error) => console.log(error), () => console.log("completed!")); // Inform ESP32 to stop.
+    this.listening = false;
+  }
+
+
 
 }

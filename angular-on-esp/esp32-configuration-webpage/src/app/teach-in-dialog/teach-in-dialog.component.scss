@@ -1,0 +1,11 @@
+h2{
+  text-align: center;
+}
+
+.irbuttons{
+  display: flex;
+  flex-direction: column;
+  .signal{
+    margin: 4px 0;
+  }
+}

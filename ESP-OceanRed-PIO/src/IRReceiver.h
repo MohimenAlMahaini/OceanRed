@@ -17,7 +17,7 @@ uint indexPtr = 0;
 String recivedHexStringBuffer[20]; // Array to hold recived signals as a Hex String
 uint16_t sizeOfArray = sizeof(recivedHexStringBuffer) / sizeof(recivedHexStringBuffer[0]);
 
-const uint16_t kCaptureBufferSize = 1024;
+const uint16_t kCaptureBufferSize = 2048;
 
 const uint8_t kTimeout = 15; // this is good enough for AC need longer Timeouts.
 

@@ -1,0 +1,16 @@
+
+.content{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  .entry{
+    background-color: #EEE;
+    max-width: 200px;
+    border: solid 2px;
+    margin: 4px;
+  }
+}
+
+
