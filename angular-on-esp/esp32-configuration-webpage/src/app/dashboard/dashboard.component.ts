@@ -25,8 +25,8 @@ export class DashboardComponent implements OnInit {
   }
 
   send(entry: EntryI): void {
-    console.log(entry);
-    // this.entryService.testIR(entry.entryId);
+    console.log(entry.IR);
+    this.entryService.testIR(entry.IR);
   }
 
 }

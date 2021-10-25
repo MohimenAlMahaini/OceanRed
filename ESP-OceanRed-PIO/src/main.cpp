@@ -9,7 +9,6 @@
 
 #define button 34
 #define LED 5
-// boolean flag = false;
 
 void setup()
 {
@@ -37,34 +36,16 @@ void setup()
       NULL           // Task Handle
   );
 
-  // TaskHandle_t xIRHandle;
-  // /*Infrared TASK. Note this task must be suspended when serving Angular. [ Intrupts </> SPIFFS ]*/
-  // xTaskCreate(
-  //     vIRRXTask,
-  //     "IRTask",
-  //     8000,
-  //     (void *)false,
-  //     1,
-  //     &xIRHandle); // Task Handle
-  //                  // NULL);
-
-  // vTaskSuspend(&xIRHandle); // IRTask Is suspended
-
   startWebServer();
   listAllFiles();
-  // vTaskResume(&xIRHandle);
 
   pinMode(button, INPUT);
   pinMode(LED, OUTPUT);
   initTx();
-  // loadConfig();
-  readEntries();
+  readEntries(); // loads saved config on boot
 }
 
 void loop()
 {
-  // rxEnOcean();
-  // transmitTX();
-  // reciveRX();
   dump();
 }

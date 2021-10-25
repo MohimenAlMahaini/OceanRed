@@ -86,7 +86,7 @@ void removeFiles()
 /**
  * Data mapping can be done using 3 tables with refrences (Embedded Database).
  * learned Enocean telegrams, learned IR Signal, and functionName.
- * the reason why data mapping is not implemented this way is because 
+ * the reason why data mapping is not implemented this way is because
  * implementing it this way reduces flexibility and increases complexity down the line which makes the code harder to maintain.
  *
  */
@@ -114,13 +114,13 @@ void saveEntriesToRAM(int entryId, String irRawData, String enoceanSignal, Strin
 String serializedEntries()
 {
     /*ArduinoJson Memory leaks
-    * Replacing and removing values produce a memory leak inside the
-    * JsonDocument.
-    * In practice, this problem only happens in programs that use a JsonDocument
-    * to store the application’s state, which is not the purpose of ArduinoJson.
-    * the sole purpose of ArduinoJson is to serialize and deserialize
-    * JSON documents. Thats why I'm not using ArduinoJson for Serialization.
-    */
+     * Replacing and removing values produce a memory leak inside the
+     * JsonDocument.
+     * In practice, this problem only happens in programs that use a JsonDocument
+     * to store the application’s state, which is not the purpose of ArduinoJson.
+     * the sole purpose of ArduinoJson is to serialize and deserialize
+     * JSON documents. Thats why I'm not using ArduinoJson for Serialization.
+     */
 
     Serial.print("Serializing Entries ...");
 
@@ -159,7 +159,7 @@ void clearEntriesFromRAM()
     memset(entry, 0, sizeof(entry));
 }
 
-int capacity = 3000;
+int capacity = 4000;
 /*This function allocate DynamicJsonDocument and it checks if the memory size is enough if not it makes it bigger and it prints the entry.json to Serial*/
 void readEntries()
 {
@@ -239,7 +239,7 @@ int addEntry(String functionName, String irRawData)
 
     int availableID = getAValidEntryID();
 
-    if (availableID != -1) // check if there is still availableIDs
+    if (availableID > 0) // check if there is still availableIDs
     {
         entry[availableID - 1].entryId = availableID;
         entry[availableID - 1].irRawData = irRawData;
@@ -275,9 +275,6 @@ void removeEnocean(int id, String signalToRemove)
     Serial.println("Signal to Remove = " + signalToRemove);
     String tmp = entry[id - 1].enoceanSignal; // the whole signal
     Serial.println("Original Signal = " + tmp);
-    // tmp.find(signalToRemove);
-
-    // tmp.erase(tmp.indexOf(signalToRemove), );
     tmp.remove(tmp.indexOf(signalToRemove), 13);
     entry[id - 1].enoceanSignal = tmp;
     Serial.println("new Signal == " + entry[id - 1].enoceanSignal);
@@ -287,15 +284,12 @@ void removeEnocean(int id, String signalToRemove)
 void removeEntry(int id)
 {
     // no need to check if entry exist because under normal usage Angular can only delete existing Entries.
-
     // unvalid id
     if (id <= 0)
     {
         return;
     }
     // find Entry to be deleted
-    // for (int i = 0; i < MAX_ALLOWED_ENTRIES; i++)
-    // {
     // making sure that its so.
     if (entry[id - 1].entryId == id)
     {
@@ -307,7 +301,6 @@ void removeEntry(int id)
         // no need to keep on looking double ID is forbidden
         return;
     }
-    // }
 }
 
 #endif /*files_h*/

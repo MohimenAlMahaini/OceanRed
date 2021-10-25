@@ -1,10 +1,6 @@
 #ifndef recive_ir_h
 #define recive_ir_h
 
-/*TODO:
-*  + Encapsulate this class in a task.
-*/
-
 #include <Arduino.h>
 #include <IRrecv.h>
 #include <IRremoteESP8266.h>
@@ -22,9 +18,9 @@ const uint16_t kCaptureBufferSize = 2048;
 const uint8_t kTimeout = 15; // this is good enough for AC need longer Timeouts.
 
 /** Set higher if you get lots of random short UNKNOWN messages when nothing
-* should be sending a message.
-* Set lower if you are sure your setup is working, but it doesn't see messages
-* from your device. */
+ * should be sending a message.
+ * Set lower if you are sure your setup is working, but it doesn't see messages
+ * from your device. */
 const uint16_t kMinUnknownSize = 12;
 const uint8_t kTolerancePercentage = kTolerance; // 25%
 
@@ -34,7 +30,7 @@ decode_results results;
 
 boolean startIRTeachin = false;
 
-void initIRReciver() //TODO: change function name
+void initIRReciver()
 {
     irrecv.setUnknownThreshold(kMinUnknownSize);
     irrecv.setTolerance(kTolerancePercentage); // Override the default tolerance.
@@ -78,7 +74,7 @@ void dump()
     if (irrecv.decode(&results))
     {
         // Display a crude timestamp.
-        uint32_t now = millis();
+        // uint32_t now = millis();
         // Serial.printf(D_STR_TIMESTAMP " : %06u.%03u\n", now / 1000, now % 1000);
         // Check if we got an IR message that was to big for our capture buffer.
         if (results.overflow)
@@ -89,13 +85,13 @@ void dump()
         if (kTolerancePercentage != kTolerance)
             Serial.printf(D_STR_TOLERANCE " : %d%%\n", kTolerancePercentage);
         // Display the basic output of what we found.
-        // Serial.print(resultToHumanReadableBasic(&results));
+        Serial.print(resultToHumanReadableBasic(&results)); // For Debug
         // Display any extra A/C info if we have it.
         String description = IRAcUtils::resultAcToString(&results);
         if (description.length())
-            Serial.println(D_STR_MESGDESC ": " + description);
-        yield(); // Feed the WDT as the text output can take a while to print.
-        // Serial.println(resultToSourceCode(&results));
+            Serial.println(D_STR_MESGDESC ": " + description); // For Debug
+        yield();                                               // Feed the WDT as the text output can take a while to print.
+        Serial.println(resultToSourceCode(&results));          // For Debug
         // Serial.println(); // Blank line between entries
         yield(); // Feed the WDT (again)
         if (startIRTeachin)

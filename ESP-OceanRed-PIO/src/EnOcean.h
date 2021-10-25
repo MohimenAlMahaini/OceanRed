@@ -1,8 +1,8 @@
 /*
-* This class is responable for EnOcean signal
-* Implementation based on EnOcean Serial Protocol 3
-* Author: Mohimen Al Mahaini
-*/
+ * This class is responable for EnOcean signal
+ * Implementation based on EnOcean Serial Protocol 3
+ * Author: Mohimen Al Mahaini
+ */
 #ifndef enocean_h
 #define enocean_h
 
@@ -128,9 +128,9 @@ void readAvailableSerial(int enOceanbyte)
 }
 
 /* This function Validates the recived EnOcean Signal
-*  Validate if the telegram came from EnOCean Rocker or FTKE.
-*  return boolean
-*/
+ *  Validate if the telegram came from EnOCean Rocker or FTKE.
+ *  return boolean
+ */
 boolean isTelegramValid()
 {
     if (telegram.packetType != 0x01) // RADIO_ERP1
@@ -183,7 +183,7 @@ void saveToArray()
     arryString += "0x";
     arryString += hexString;
     // arrayString = <type>#0x<senderId>
-    arryString += "*"; //GET PAYLOAD FOR 1BS
+    arryString += "*"; // GET PAYLOAD FOR 1BS
     hexString = String(telegram.data[1], HEX);
     if (telegram.data[1] == 0)
     {
@@ -197,7 +197,7 @@ void saveToArray()
 
 void getEnOceanSenderInfo()
 {
-    recivedTelegram.packetType = telegram.packetType; //get PacketType
+    recivedTelegram.packetType = telegram.packetType; // get PacketType
     byte temp[4];
     // Get Sender ID
     for (int i = 0; i < 4; i++)
@@ -231,7 +231,7 @@ void getEnOceanSenderInfo()
         compareRxWithRAMEntries(recivedTelegram.senderID, telegram.data[1]); // TODO Compare if not in Teachin mode!
         if (getStartEnOceanTeachIn())
         {
-            Serial.println("START ENOCEAN TEACHIN == TRUE;");
+            // Serial.println("START ENOCEAN TEACHIN == TRUE;");
             saveToArray();
         }
     }
@@ -297,10 +297,10 @@ void rxEnOcean()
             }
             else
             {
-                // Serial.println("Recived CRC8D == Calculated CRC8D"); // All good, proceed.
+                // Serial.println("Recived CRC8D == Calculated CRC8D"); // All good, proceed. FOR DEBUG
                 getEnOceanSenderInfo();
             }
-            // displayRecivedTelegram(headerData);
+            // displayRecivedTelegram(headerData); // FOR DEBUG
         }
     }
 }
@@ -322,4 +322,4 @@ void vEnOceanTask(void *pvParameters)
  *      f6  e0  fe fa 27 c5 20
  *      f6 20 fe ff fe 63 30
  *      f6 00 fe ff fe 63 20
-*/
+ */

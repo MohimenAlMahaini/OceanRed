@@ -222,7 +222,7 @@ void requestHandel()
         Serial.print("Sending IR Signal = ");
         Serial.println(irRawData);
         transmitTX(irRawData);
-        request->send(200);
+        request->send(204);
       });
 
   webServer.on(

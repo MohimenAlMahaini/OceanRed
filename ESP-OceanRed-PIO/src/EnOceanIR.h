@@ -39,20 +39,20 @@ void compareRxWithRAMEntries(byte senderID[], byte dataByte)
       compString += "0";
     }
   }
-  compString += String(dataByte, HEX); // compString = "0xffa1c4ffa3"
+  compString += String(dataByte, HEX); // compString = "0xfefa27c5f0"
 
-  // Serial.println("Comparative String = " + compString); // FOR DEBUG
+  Serial.println("Comparative String = " + compString); // FOR DEBUG
   // Iterate throw all entries
   for (int j = 0; j < MAX_ALLOWED_ENTRIES; j++)
   {
     // if entry[j].irRawData  is emtpy or if an Entry does not contain an Enocean signal no need to do anything just skip.
-    if (entry[j].irRawData.equals("") || entry[j].enoceanSignal.equals(""))
+    if (entry[j].irRawData.equals("") || entry[j].enoceanSignal.equals("") || entry[j].entryId < 0)
     {
       continue;
     }
     char *pch;
-    String enoceanSignal = entry[j].enoceanSignal;
-    // Serial.println("EnOcean Signal @ " + String(j) + " = " + enoceanSignal); // FOR DEBUG
+    String enoceanSignal = entry[j].enoceanSignal;                           // enoceanSignal = 0xfefa27c5f#
+    Serial.println("EnOcean Signal @ " + String(j) + " = " + enoceanSignal); // FOR DEBUG
     // Prepare enoceanSignal for comparison
     // Prepare the character array (the buffer) , Length (with one extra character for the null terminator)
     char str[enoceanSignal.length() + 1];
@@ -61,8 +61,7 @@ void compareRxWithRAMEntries(byte senderID[], byte dataByte)
     pch = strtok(str, "#");
     while (pch != NULL)
     {
-      // Serial.printf("pch = %s\n", pch); // FOR DEBUG
-      pch = strtok(NULL, "#");
+      //   // Serial.printf("pch = %s\n", pch); // FOR DEBUG
       if (compString.equals(pch))
       {
         /*Get the irRawData and send it*/
@@ -70,7 +69,9 @@ void compareRxWithRAMEntries(byte senderID[], byte dataByte)
         Serial.println(entry[j].entryId);
         transmitTX(entry[j].irRawData);
       }
+      pch = strtok(NULL, "#");
     }
+    // Serial.printf("pch = %s\n", pch); // FOR DEBUG
   }
 }
 

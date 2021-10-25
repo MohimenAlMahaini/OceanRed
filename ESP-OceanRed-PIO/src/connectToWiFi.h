@@ -20,7 +20,7 @@ IPAddress netMsk(255, 255, 255, 0);
 
 void tick()
 {
-    //toggle state
+    // toggle state
     int state = digitalRead(BUILTIN_LED); // get the current state of GPIO1 pin
     digitalWrite(BUILTIN_LED, !state);    // set pin to the opposite state
 }
@@ -30,7 +30,7 @@ void configModeCallback(AsyncWiFiManager *myWiFiManager)
     Serial.println("Entered config mode . . .");
     Serial.println("Connected to the WiFi Network");
     Serial.println(WiFi.softAPIP());
-    //entered config mode, make led toggle faster
+    // entered config mode, make led toggle faster
     ticker.attach(0.2, tick);
 }
 
@@ -59,32 +59,34 @@ void connectWiFi()
     dns.start(DNS_PORT, "detectportal.firefox.com", apIP);
     dns.start(DNS_PORT, "*", apIP);
 
-    //WiFiManager
-    //Local intialization. Once its business is done, there is no need to keep it around
+    // WiFiManager
+    // Local intialization. Once its business is done, there is no need to keep it around
     AsyncWiFiManager wifiManager(&serv, &dns);
     WiFi.disconnect(true);
     delay(200);
-    //set callback that gets called when connecting to previous WiFi fails, and enters Access Point mode
+    // set callback that gets called when connecting to previous WiFi fails, and enters Access Point mode
     wifiManager.setAPCallback(configModeCallback);
 
-    //fetches ssid and pass and tries to connect
-    //if it does not connect it starts an access point with the specified name
-    //and goes into a blocking loop awaiting configuration
-    if (!wifiManager.autoConnect("BSCESP-32-AP"))
+    // fetches ssid and pass and tries to connect
+    // if it does not connect it starts an access point with the specified name
+    // and goes into a blocking loop awaiting configuration
+    if (!wifiManager.autoConnect("BSCESP-32-AP", "Password"))
     {
         Serial.println("failed to connect and hit timeout");
     }
 
-    //if you reach here you have connected to the WiFi
+    // if you reach here you have connected to the WiFi
     Serial.println("Connected to the WiFi Network");
     Serial.println("MAC: " + WiFi.macAddress());
     Serial.println("IP: " + WiFi.localIP().toString());
     Serial.print("Received Signal Strength Indicator (RSSI) = " + WiFi.RSSI());
     Serial.println("connected...");
 
+    WiFi.softAPdisconnect(true); // Turn off AP
+
     ticker.detach();
 
-    //Turn LED off after detaching ticker
+    // Turn LED off after detaching ticker
     digitalWrite(BUILTIN_LED, LOW);
 }
 

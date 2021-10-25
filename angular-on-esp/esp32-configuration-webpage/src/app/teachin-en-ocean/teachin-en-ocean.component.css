@@ -1,3 +1,7 @@
 h2{
   text-align: center;
 }
+
+.highlighted{
+  background-color: rgb(210, 223, 174);
+}

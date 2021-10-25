@@ -1,13 +1,18 @@
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, isDevMode } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { EnoceanI } from '../enocean-i';
 
+const devIP = "http://192.168.124.21:81";
+// const devIP = "http://192.168.0.242:81";
+const IP = isDevMode() ? devIP : '';
+// const IP = '';
 
 @Injectable({
   providedIn: 'root'
 })
-export class EnoceanService {
+export class EnoceanService
+{
 
   private requestInterval = 1500;
   private listening = false;
@@ -21,19 +26,24 @@ export class EnoceanService {
   constructor(private http: HttpClient) { }
 
 
-  getEnoceanTelegramArray(): EnoceanI[] {
+  getEnoceanTelegramArray(): EnoceanI[]
+  {
     let result: EnoceanI[] = [];
     this.enoceanTelegramArray.forEach((value) => result.push(value));
     return result;
   }
 
-  resetEnoceanTelegramArray(): void {
+  resetEnoceanTelegramArray(): void
+  {
     this.enoceanTelegramArray = [];
   }
 
-  startListening(): void {
-    if (!this.listening) {
-      this.http.get('start-enocean-teachin').subscribe((data) => {
+  startListening(): void
+  {
+    if (!this.listening)
+    {
+      this.http.get(IP + '/start-enocean-teachin').subscribe((data) =>
+      {
         console.log("START LISTENING TO ENOCEAN...");
         console.log(data);
       }, (error) => console.log(error), () => console.log("completed!"));; // Inform ESP32 to start.
@@ -42,22 +52,30 @@ export class EnoceanService {
     }
   }
 
-  private startRequestLoop(): void {
-    if (this.listening) {
-      setTimeout(() => {
+  private startRequestLoop(): void
+  {
+    if (this.listening)
+    {
+      setTimeout(() =>
+      {
 
         if (!this.listening)
           return;
 
         console.log("Request EnOcean data...")
-        this.http.get('get-eo').subscribe((data) => {
+        this.http.get(IP + '/get-eo').subscribe((data) =>
+        {
           console.log(data);
-          if (data) {
+          if (data)
+          {
             let container = data as any;
-            if (container.telegrams) {
-              for (let i = 0; i < container.telegrams.length; i++) {
+            if (container.telegrams)
+            {
+              for (let i = 0; i < container.telegrams.length; i++)
+              {
                 let telegram = container.telegrams[i];
-                if (telegram) {
+                if (telegram)
+                {
                   this.enoceanTelegramArray.push(telegram);
                   this.receivableSubject.next(telegram);
                 }
@@ -75,7 +93,8 @@ export class EnoceanService {
 
           this.startRequestLoop();
         },
-          (error) => {
+          (error) =>
+          {
             console.log("Error");
             console.log(error);
 
@@ -86,8 +105,10 @@ export class EnoceanService {
     }
   }
 
-  stopListening(): void {
-    this.http.get("stop-enocean-teachin").subscribe((data) => {
+  stopListening(): void
+  {
+    this.http.get(IP + "/stop-enocean-teachin").subscribe((data) =>
+    {
       console.log("Stoped EnOcean Teachin");
       console.log(data);
     }, (error) => console.log(error), () => console.log("completed!")); // Inform ESP32 to stop.
