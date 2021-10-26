@@ -26,61 +26,11 @@ export class TeachInDialogComponent implements OnInit, OnDestroy
   irSignals: string[] = [];
   noDuplicationIr: string[] = [];
 
-
   constructor(public dialog: MatDialog, private irService: IRServiceService, private entryService: EntryService) { }
 
   ngOnInit(): void
   {
   }
-
-  // highlight(): void
-  // {
-  //   this.toggle = true;
-  //   setTimeout(() => this.toggle = false, 1000);
-  // }
-
-  /*WIP function not working*/
-  // reciveIr(irSignal: string): void
-  // {
-  //   console.warn(this.noDuplicationIr.length);
-  //   let found = false;
-  //   // if (this.noDuplicationIr.length < 1)
-  //   // {
-  //   //   this.noDuplicationIr.push(irSignal);
-  //   // } else
-  //   // {
-  //   this.noDuplicationIr.forEach(element =>
-  //   {
-  //     if (element.length == irSignal.length)
-  //     {
-  //       // compare string 90% same then true;
-  //       let elementx = element.split(',');
-  //       let irSignalx = irSignal.split(',');
-  //       let n: number = 0;
-  //       for (let i = 0; i < elementx.length; i++)
-  //       {
-  //         if (elementx[i] === irSignalx[i])
-  //         {
-  //           console.log("elementx[" + i + "] = " + elementx[i])
-  //           n++
-  //         }
-  //       }
-  //       let similarity = n / irSignalx.length;
-  //       console.log("Similarity = n / irSignalx.lenght " + n + " / " + elementx.length + " = " + similarity);
-  //       if (similarity > 0.8)
-  //       {
-  //         console.log("Signal already recived");
-  //         this.highlight();
-  //         found = true;
-  //       }
-  //     }
-  //   });
-  //   if (!found)
-  //   {
-  //     console.log("adding signal"); // FOR DEBUG
-  //     this.noDuplicationIr.push(irSignal);
-  //   }
-  // }
 
   setChosenIR(ir: string)
   {
